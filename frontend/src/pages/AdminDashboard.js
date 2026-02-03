@@ -77,6 +77,66 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`${API}/admin/user`, formData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success('User created successfully!');
+      setShowCreateDialog(false);
+      setFormData({ name: '', email: '', password: '', role: 'student' });
+      loadUsers();
+      loadStats();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to create user');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditUser = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`${API}/admin/user/${editingUser.id}`, formData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success('User updated successfully!');
+      setShowEditDialog(false);
+      setEditingUser(null);
+      setFormData({ name: '', email: '', password: '', role: 'student' });
+      loadUsers();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to update user');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openEditDialog = (u) => {
+    setEditingUser(u);
+    setFormData({
+      name: u.name,
+      email: u.email,
+      password: '',
+      role: u.role
+    });
+    setShowEditDialog(true);
+  };
+
+  const togglePasswordVisibility = (userId) => {
+    setShowPassword(prev => ({
+      ...prev,
+      [userId]: !prev[userId]
+    }));
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
