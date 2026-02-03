@@ -307,6 +307,23 @@ async def get_me(current_user: dict = Depends(get_current_user)):
 
 # ============ STUDENT ENDPOINTS ============
 
+@api_router.get("/student/teachers")
+async def get_teachers(current_user: dict = Depends(get_current_user)):
+    """Get list of all teachers (for students to select)"""
+    if current_user['role'] != 'student':
+        raise HTTPException(status_code=403, detail="Access denied. Students only")
+    
+    teachers = await db.users.find({"role": "teacher"}, {"_id": 0, "password": 0}).to_list(1000)
+    
+    return [
+        {
+            "id": teacher['id'],
+            "name": teacher['name'],
+            "email": teacher['email']
+        }
+        for teacher in teachers
+    ]
+
 @api_router.post("/student/resume")
 async def submit_resume(data: SubmitResumeRequest, current_user: dict = Depends(get_current_user)):
     """Submit resume (student only) - with encryption and digital signature"""
