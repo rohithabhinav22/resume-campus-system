@@ -127,7 +127,7 @@ export default function SecurityInspector() {
 
         {/* Encrypted Resumes */}
         <div className="bg-white rounded-xl border p-6">
-          <h2 className="text-xl font-bold mb-4">Encrypted vs Decrypted Data</h2>
+          <h2 className="text-xl font-bold mb-4">Encrypted Resumes (AES-256-CBC)</h2>
           {securityData.encrypted_resumes.slice(0, 2).map((resume, idx) => (
             <div key={idx} className="border rounded-lg p-4 mb-4">
               <p className="font-medium mb-3">{resume.student_name}</p>
@@ -160,6 +160,61 @@ export default function SecurityInspector() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Encrypted Feedback */}
+        <div className="bg-white rounded-xl border p-6">
+          <h2 className="text-xl font-bold mb-4">Encrypted Feedback (AES-256-CBC)</h2>
+          {securityData.feedback_signatures && securityData.feedback_signatures.length > 0 ? (
+            securityData.feedback_signatures.slice(0, 2).map((feedback, idx) => (
+              <div key={idx} className="border rounded-lg p-4 mb-4">
+                <div className="flex justify-between mb-3">
+                  <div>
+                    <p className="font-medium">Teacher: {feedback.teacher_name}</p>
+                    <p className="text-sm text-slate-600">For: {feedback.student_name}</p>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs h-fit ${
+                    feedback.signature_verified 
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : 'bg-red-50 text-red-700 border border-red-200'
+                  }`}>
+                    {feedback.signature_verified ? '✓ Verified' : '✗ Invalid'}
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-red-700 mb-2">🔒 Encrypted:</p>
+                    <div className="bg-red-50 p-3 rounded border border-red-200">
+                      <code className="text-xs font-mono text-red-700 break-all line-clamp-3">
+                        {feedback.encrypted_text}
+                      </code>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-2">IV: {feedback.iv.substring(0, 20)}...</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm font-medium text-emerald-700 mb-2">🔓 Decrypted:</p>
+                    <div className="bg-emerald-50 p-3 rounded border border-emerald-200">
+                      <p className="text-sm text-slate-900 line-clamp-3">
+                        {feedback.decrypted_text}
+                      </p>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-2">Hash: {feedback.encrypted_hash.substring(0, 20)}...</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 bg-amber-50 p-2 rounded text-xs">
+                  <strong>HMAC-SHA256 Signature:</strong> {feedback.digital_signature}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-slate-600">
+              <p>No feedback submitted yet</p>
+              <p className="text-sm text-slate-400 mt-1">Teachers need to provide feedback to see encryption</p>
+            </div>
+          )}
         </div>
 
         {/* Summary */}
