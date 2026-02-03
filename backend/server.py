@@ -474,6 +474,88 @@ async def get_admin_stats(current_user: dict = Depends(get_current_user)):
         "total_feedbacks": total_feedbacks
     }
 
+@api_router.post("/admin/user")
+async def create_user_by_admin(data: RegisterRequest, current_user: dict = Depends(get_current_user)):
+    """Create new user as admin"""
+    if current_user['role'] != 'admin':
+        raise HTTPException(status_code=403, detail="Access denied. Admins only")
+    
+    if data.role not in ['student', 'teacher', 'admin']:
+        raise HTTPException(status_code=400, detail="Invalid role")
+    
+    # Check if email exists
+    existing_user = await db.users.find_one({"email": data.email}, {"_id": 0})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Hash password with salt
+    hashed_password = hash_password(data.password)
+    
+    user_doc = {
+        "id": str(uuid.uuid4()),
+        "email": data.email,
+        "password": hashed_password,
+        "name": data.name,
+        "role": data.role,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.users.insert_one(user_doc)
+    
+    return {
+        "message": "User created successfully",
+        "user": {
+            "id": user_doc["id"],
+            "email": user_doc["email"],
+            "name": user_doc["name"],
+            "role": user_doc["role"],
+            "password_hash": hashed_password
+        }
+    }
+
+@api_router.put("/admin/user/{user_id}")
+async def update_user(user_id: str, data: RegisterRequest, current_user: dict = Depends(get_current_user)):
+    """Update user details (admin only)"""
+    if current_user['role'] != 'admin':
+        raise HTTPException(status_code=403, detail="Access denied. Admins only")
+    
+    if data.role not in ['student', 'teacher', 'admin']:
+        raise HTTPException(status_code=400, detail="Invalid role")
+    
+    # Check if user exists
+    user = await db.users.find_one({"id": user_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check if email is taken by another user
+    if data.email != user['email']:
+        existing_user = await db.users.find_one({"email": data.email}, {"_id": 0})
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already taken")
+    
+    # Hash new password
+    hashed_password = hash_password(data.password)
+    
+    update_doc = {
+        "email": data.email,
+        "password": hashed_password,
+        "name": data.name,
+        "role": data.role
+    }
+    
+    await db.users.update_one({"id": user_id}, {"$set": update_doc})
+    
+    return {
+        "message": "User updated successfully",
+        "user": {
+            "id": user_id,
+            "email": data.email,
+            "name": data.name,
+            "role": data.role,
+            "password_hash": hashed_password
+        }
+    }
+
 @api_router.delete("/admin/user/{user_id}")
 async def delete_user(user_id: str, current_user: dict = Depends(get_current_user)):
     """Delete user (admin only)"""
