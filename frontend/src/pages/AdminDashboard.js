@@ -415,10 +415,13 @@ export default function AdminDashboard() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDeleteUser(u.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteUser(u.id, u.name);
+                            }}
                             disabled={loading}
                             className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            data-testid="delete-user-button"
+                            data-testid={`delete-user-${u.id}`}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
