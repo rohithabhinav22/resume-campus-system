@@ -615,6 +615,13 @@ async def create_user_by_admin(data: RegisterRequest, current_user: dict = Depen
     if data.role not in ['student', 'teacher', 'admin']:
         raise HTTPException(status_code=400, detail="Invalid role")
     
+    # Validate password strength
+    if not validate_password(data.password):
+        raise HTTPException(
+            status_code=400, 
+            detail="Password must be at least 8 characters and contain uppercase, lowercase, number, and special character (@_-!#$%^&*)"
+        )
+    
     # Check if email exists
     existing_user = await db.users.find_one({"email": data.email}, {"_id": 0})
     if existing_user:
