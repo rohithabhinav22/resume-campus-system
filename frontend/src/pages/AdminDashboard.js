@@ -15,6 +15,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({});
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
