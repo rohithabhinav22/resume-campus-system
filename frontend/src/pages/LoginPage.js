@@ -164,7 +164,7 @@ export default function LoginPage() {
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8\">
               <div className="text-center mb-8">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-600 rounded-full mb-4">
                   <ShieldCheck className="w-8 h-8 text-white" />
@@ -172,8 +172,26 @@ export default function LoginPage() {
                 <h2 className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Playfair Display, serif' }}>
                   Verify OTP
                 </h2>
-                <p className="text-slate-600 mt-2">Enter the 6-digit code from the alert popup</p>
+                <p className="text-slate-600 mt-2">Enter the 6-digit code displayed below</p>
               </div>
+
+              {/* OTP Display Box - Simulated Alert */}
+              {showOTPPopup && generatedOTP && (
+                <div className="mb-6 p-4 bg-amber-50 border-2 border-amber-300 rounded-lg animate-pulse" data-testid="otp-display-box">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ShieldCheck className="w-5 h-5 text-amber-700" />
+                    <p className="text-sm font-medium text-amber-900">Your OTP Code:</p>
+                  </div>
+                  <div className="bg-white p-4 rounded border border-amber-200 text-center">
+                    <p className="text-3xl font-bold font-mono text-slate-900 tracking-widest">
+                      {generatedOTP}
+                    </p>
+                  </div>
+                  <p className="text-xs text-amber-700 mt-2 text-center">
+                    This is a simulated OTP for testing purposes
+                  </p>
+                </div>
+              )}
 
               <form onSubmit={handleVerifyOTP} className="space-y-6">
                 <div>
@@ -205,7 +223,12 @@ export default function LoginPage() {
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => setShowOTP(false)}
+                  onClick={() => {
+                    setShowOTP(false);
+                    setShowOTPPopup(false);
+                    setGeneratedOTP('');
+                    setOTP('');
+                  }}
                   className="w-full text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                   data-testid="back-to-login-button"
                 >
