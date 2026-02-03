@@ -19,8 +19,24 @@ export default function StudentDashboard() {
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('user') || '{}');
     setUser(userData);
+    loadTeachers();
     loadFeedbacks();
   }, []);
+
+  const loadTeachers = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API}/student/teachers`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setTeachers(response.data);
+      if (response.data.length > 0) {
+        setSelectedTeacher(response.data[0].id);
+      }
+    } catch (error) {
+      console.error('Error loading teachers:', error);
+    }
+  };
 
   const loadFeedbacks = async () => {
     try {
