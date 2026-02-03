@@ -435,11 +435,15 @@ export default function AdminDashboard() {
                               e.stopPropagation();
                               handleDeleteUser(u.id, u.name);
                             }}
-                            disabled={loading}
+                            disabled={deleting === u.id}
                             className="text-red-600 hover:text-red-700 hover:bg-red-50"
                             data-testid={`delete-user-${u.id}`}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            {deleting === u.id ? (
+                              <span className="text-xs">Deleting...</span>
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
                           </Button>
                         )}
                       </div>
