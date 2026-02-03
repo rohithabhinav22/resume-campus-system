@@ -10,6 +10,8 @@ import { FileText, LogOut, Lock, BadgeCheck, MessageSquare, User } from 'lucide-
 export default function StudentDashboard() {
   const [user, setUser] = useState(null);
   const [resumeText, setResumeText] = useState('');
+  const [selectedTeacher, setSelectedTeacher] = useState('');
+  const [teachers, setTeachers] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
