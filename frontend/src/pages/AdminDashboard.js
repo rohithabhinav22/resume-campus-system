@@ -329,6 +329,7 @@ export default function AdminDashboard() {
                   <th className="text-left py-3 px-4 text-sm font-medium text-slate-700">Name</th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-slate-700">Email</th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-slate-700">Role</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-slate-700">Password Hash</th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-slate-700">Created</th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-slate-700">Actions</th>
                 </tr>
@@ -351,28 +352,114 @@ export default function AdminDashboard() {
                         {u.role}
                       </span>
                     </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        <code className="text-xs font-mono text-slate-600">
+                          {showPassword[u.id] ? u.password : u.password?.substring(0, 20) + '...'}
+                        </code>
+                        <button
+                          onClick={() => togglePasswordVisibility(u.id)}
+                          className="text-slate-500 hover:text-slate-700"
+                          data-testid="toggle-password-button"
+                        >
+                          {showPassword[u.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </td>
                     <td className="py-3 px-4 text-sm text-slate-700">
                       {new Date(u.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-3 px-4">
-                      {u.role !== 'admin' && (
+                      <div className="flex gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDeleteUser(u.id)}
-                          disabled={loading}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          data-testid="delete-user-button"
+                          onClick={() => openEditDialog(u)}
+                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          data-testid="edit-user-button"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Edit className="w-4 h-4" />
                         </Button>
-                      )}
+                        {u.role !== 'admin' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteUser(u.id)}
+                            disabled={loading}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            data-testid="delete-user-button"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          
+          {/* Edit User Dialog */}
+          <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle style={{ fontFamily: 'Playfair Display, serif' }}>Edit User</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleEditUser} className="space-y-4">
+                <div>
+                  <Label htmlFor="edit-name">Full Name</Label>
+                  <Input
+                    id="edit-name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                    data-testid="edit-name-input"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-email">Email</Label>
+                  <Input
+                    id="edit-email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                    data-testid="edit-email-input"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-password">New Password</Label>
+                  <Input
+                    id="edit-password"
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder="Leave blank to keep current password"
+                    required
+                    data-testid="edit-password-input"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">Enter new password to update</p>
+                </div>
+                <div>
+                  <Label htmlFor="edit-role">Role</Label>
+                  <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                    <SelectTrigger data-testid="edit-role-select">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="student">Student</SelectItem>
+                      <SelectItem value="teacher">Teacher</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button type="submit" className="w-full" disabled={loading} data-testid="edit-user-submit">
+                  {loading ? 'Updating...' : 'Update User'}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </div>
