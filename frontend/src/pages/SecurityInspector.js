@@ -74,19 +74,19 @@ export default function SecurityInspector() {
             <p className="text-sm text-slate-600">Encrypted Resumes</p>
           </div>
           <div className="bg-white rounded-xl border p-4">
+            <Lock className="w-8 h-8 text-amber-600 mb-2" />
+            <p className="text-2xl font-bold">{securityData.encrypted_feedbacks_count || 0}</p>
+            <p className="text-sm text-slate-600">Encrypted Feedback</p>
+          </div>
+          <div className="bg-white rounded-xl border p-4">
             <Hash className="w-8 h-8 text-blue-600 mb-2" />
             <p className="text-2xl font-bold">{securityData.total_users}</p>
             <p className="text-sm text-slate-600">Password Hashes</p>
           </div>
           <div className="bg-white rounded-xl border p-4">
-            <Shield className="w-8 h-8 text-amber-600 mb-2" />
+            <Shield className="w-8 h-8 text-purple-600 mb-2" />
             <p className="text-2xl font-bold">{securityData.total_signatures}</p>
             <p className="text-sm text-slate-600">Digital Signatures</p>
-          </div>
-          <div className="bg-white rounded-xl border p-4">
-            <Key className="w-8 h-8 text-purple-600 mb-2" />
-            <p className="text-lg font-bold">AES-256-CBC</p>
-            <p className="text-sm text-slate-600">Encryption</p>
           </div>
         </div>
 
