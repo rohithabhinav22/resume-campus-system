@@ -4,16 +4,12 @@ import axios from 'axios';
 import { API } from '../App';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
-import { Shield, ArrowLeft, Lock, Key, Hash, FileText, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { Shield, ArrowLeft, Lock, Key, Hash, Eye, EyeOff } from 'lucide-react';
 
 export default function SecurityInspector() {
-  const [user, setUser] = useState(null);
   const [securityData, setSecurityData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [showSensitive, setShowSensitive] = useState({
-    encryptionKey: false,
-    passwords: {}
-  });
+  const [showKey, setShowKey] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
