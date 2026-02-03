@@ -58,6 +58,7 @@ class VerifyOTPRequest(BaseModel):
 
 class SubmitResumeRequest(BaseModel):
     resume_text: str
+    teacher_id: str
 
 class SubmitFeedbackRequest(BaseModel):
     resume_id: str
