@@ -4,6 +4,7 @@ import axios from 'axios';
 import { API } from '../App';
 import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { toast } from 'sonner';
 import { FileText, LogOut, Lock, BadgeCheck, MessageSquare, User } from 'lucide-react';
 
