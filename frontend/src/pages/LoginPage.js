@@ -204,7 +204,7 @@ export default function LoginPage() {
                     data-testid="otp-input"
                   />
                   <p className="text-xs text-slate-500 mt-2 text-center">
-                    Didn't see the popup? Check if popups are blocked in your browser
+                    Check the notification in the top-right corner for your OTP code
                   </p>
                 </div>
 
