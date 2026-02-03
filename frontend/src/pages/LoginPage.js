@@ -25,17 +25,17 @@ export default function LoginPage() {
     try {
       const response = await axios.post(`${API}/auth/login`, { email, password });
       
-      // Simulate OTP alert popup (like Google) - show first
-      alert(`Your OTP is: ${response.data.otp}\n\nThis is a simulated OTP for testing purposes.`);
-      
-      // Then update state and show toast
+      // Set the generated OTP
       setGeneratedOTP(response.data.otp);
-      toast.success('OTP generated! Check the alert popup.');
       
-      // Set showOTP after a small delay to ensure proper state update
-      setTimeout(() => {
-        setShowOTP(true);
-      }, 100);
+      // Show custom OTP popup
+      setShowOTPPopup(true);
+      
+      // Show toast
+      toast.success('OTP generated! Check the popup below.');
+      
+      // Set showOTP to display verification form
+      setShowOTP(true);
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Login failed');
     } finally {
