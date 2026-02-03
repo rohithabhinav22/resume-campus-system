@@ -672,6 +672,13 @@ async def update_user(user_id: str, data: RegisterRequest, current_user: dict = 
         if existing_user:
             raise HTTPException(status_code=400, detail="Email already taken")
     
+    # Validate password strength
+    if not validate_password(data.password):
+        raise HTTPException(
+            status_code=400, 
+            detail="Password must be at least 8 characters and contain uppercase, lowercase, number, and special character (@_-!#$%^&*)"
+        )
+    
     # Hash new password
     hashed_password = hash_password(data.password)
     
