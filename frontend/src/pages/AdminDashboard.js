@@ -437,7 +437,7 @@ export default function AdminDashboard() {
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDeleteUser(u.id, u.name);
+                              handleDeleteUser(u.id, u.name, u.role);
                             }}
                             disabled={deleting === u.id}
                             className="text-red-600 hover:text-red-700 hover:bg-red-50"
