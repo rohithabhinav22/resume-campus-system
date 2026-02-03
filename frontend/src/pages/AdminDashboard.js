@@ -59,7 +59,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeleteUser = async (userId, userName) => {
+  const handleDeleteUser = async (userId, userName, userRole) => {
     if (!window.confirm(`Are you sure you want to delete ${userName}?`)) return;
 
     setDeleting(userId);
@@ -69,26 +69,30 @@ export default function AdminDashboard() {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      toast.success(`${userName} deleted successfully`);
+      toast.success(`${userName} deleted!`);
       
       // Immediately remove from UI
       setUsers(prevUsers => prevUsers.filter(u => u.id !== userId));
       
-      // Update stats immediately
+      // Update stats immediately based on deleted user's role
       setStats(prevStats => ({
         ...prevStats,
-        total_users: (prevStats.total_users || 0) - 1,
-        total_students: prevStats.total_students ? prevStats.total_students - (userName.includes('student') ? 1 : 0) : 0,
-        total_teachers: prevStats.total_teachers ? prevStats.total_teachers - (userName.includes('teacher') ? 1 : 0) : 0
+        total_users: (prevStats.total_users || 1) - 1,
+        total_students: userRole === 'student' ? (prevStats.total_students || 1) - 1 : prevStats.total_students,
+        total_teachers: userRole === 'teacher' ? (prevStats.total_teachers || 1) - 1 : prevStats.total_teachers
       }));
       
-      // Refresh from server
-      await Promise.all([loadStats(), loadUsers()]);
+      // Refresh from server for accuracy
+      setTimeout(() => {
+        loadStats();
+        loadUsers();
+      }, 100);
     } catch (error) {
       console.error('Delete error:', error);
       toast.error(error.response?.data?.detail || 'Failed to delete user');
-      // Reload on error to ensure consistency
-      await loadUsers();
+      // Reload on error
+      loadUsers();
+      loadStats();
     } finally {
       setDeleting(null);
     }
