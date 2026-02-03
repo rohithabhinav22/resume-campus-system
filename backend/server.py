@@ -381,7 +381,7 @@ async def get_student_feedback(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Access denied. Students only")
     
     # Get all student's resumes
-    resumes = await db.resumes.find({" student_id": current_user['id']}, {"_id": 0}).to_list(1000)
+    resumes = await db.resumes.find({"student_id": current_user['id']}, {"_id": 0}).to_list(1000)
     resume_ids = [r['id'] for r in resumes]
     
     # Get all feedback for these resumes
@@ -411,8 +411,8 @@ async def get_student_feedback(current_user: dict = Depends(get_current_user)):
                         feedback['digital_signature']
                     )
                 })
-            except:
-                pass
+            except Exception as e:
+                logging.error(f"Error processing feedback: {e}")
     
     return result
 
