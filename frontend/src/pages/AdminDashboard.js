@@ -62,7 +62,7 @@ export default function AdminDashboard() {
   const handleDeleteUser = async (userId, userName) => {
     if (!window.confirm(`Are you sure you want to delete ${userName}?`)) return;
 
-    setLoading(true);
+    setDeleting(userId);
     try {
       const token = localStorage.getItem('token');
       await axios.delete(`${API}/admin/user/${userId}`, {
@@ -71,17 +71,26 @@ export default function AdminDashboard() {
       
       toast.success(`${userName} deleted successfully`);
       
-      // Immediately update UI by filtering out deleted user
+      // Immediately remove from UI
       setUsers(prevUsers => prevUsers.filter(u => u.id !== userId));
       
-      // Refresh stats and full user list
-      await loadStats();
-      await loadUsers();
+      // Update stats immediately
+      setStats(prevStats => ({
+        ...prevStats,
+        total_users: (prevStats.total_users || 0) - 1,
+        total_students: prevStats.total_students ? prevStats.total_students - (userName.includes('student') ? 1 : 0) : 0,
+        total_teachers: prevStats.total_teachers ? prevStats.total_teachers - (userName.includes('teacher') ? 1 : 0) : 0
+      }));
+      
+      // Refresh from server
+      await Promise.all([loadStats(), loadUsers()]);
     } catch (error) {
       console.error('Delete error:', error);
       toast.error(error.response?.data?.detail || 'Failed to delete user');
+      // Reload on error to ensure consistency
+      await loadUsers();
     } finally {
-      setLoading(false);
+      setDeleting(null);
     }
   };
 
