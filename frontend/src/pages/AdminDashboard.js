@@ -3,14 +3,28 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API } from '../App';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { toast } from 'sonner';
-import { Shield, LogOut, Users, FileText, MessageSquare, Trash2, AlertCircle } from 'lucide-react';
+import { Shield, LogOut, Users, FileText, MessageSquare, Trash2, Edit, Plus, Eye, EyeOff } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [stats, setStats] = useState({});
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [showPassword, setShowPassword] = useState({});
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'student'
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
