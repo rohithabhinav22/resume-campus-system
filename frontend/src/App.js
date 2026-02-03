@@ -59,6 +59,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/security"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <SecurityInspector />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
