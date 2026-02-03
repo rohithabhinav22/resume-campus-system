@@ -403,11 +403,15 @@ async def get_student_feedback(current_user: dict = Depends(get_current_user)):
 
 @api_router.get("/teacher/resumes")
 async def get_all_resumes(current_user: dict = Depends(get_current_user)):
-    """Get all student resumes (teacher and admin only)"""
+    """Get resumes sent to this teacher (teacher and admin only)"""
     if current_user['role'] not in ['teacher', 'admin']:
         raise HTTPException(status_code=403, detail="Access denied. Teachers and admins only")
     
-    resumes = await db.resumes.find({}, {"_id": 0}).to_list(1000)
+    # Teachers see only resumes sent to them, admins see all
+    if current_user['role'] == 'teacher':
+        resumes = await db.resumes.find({"teacher_id": current_user['id']}, {"_id": 0}).to_list(1000)
+    else:
+        resumes = await db.resumes.find({}, {"_id": 0}).to_list(1000)
     
     result = []
     for resume in resumes:
@@ -429,6 +433,7 @@ async def get_all_resumes(current_user: dict = Depends(get_current_user)):
                 "id": resume['id'],
                 "student_name": resume['student_name'],
                 "student_email": resume['student_email'],
+                "teacher_name": resume.get('teacher_name', 'Not specified'),
                 "resume_text": decrypted_text,
                 "encrypted_hash": resume['encrypted_hash'],
                 "digital_signature": resume['digital_signature'][:16] + "...",
