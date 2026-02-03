@@ -133,6 +133,24 @@ export default function StudentDashboard() {
             <form onSubmit={handleSubmitResume} className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-slate-700 mb-2 block">
+                  Select Teacher
+                </label>
+                <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
+                  <SelectTrigger className="w-full" data-testid="teacher-select">
+                    <SelectValue placeholder="Choose a teacher" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {teachers.map((teacher) => (
+                      <SelectItem key={teacher.id} value={teacher.id}>
+                        {teacher.name} ({teacher.email})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-700 mb-2 block">
                   Resume Content
                 </label>
                 <Textarea
