@@ -128,6 +128,9 @@ export default function TeacherDashboard() {
                         <div>
                           <span className="font-medium text-slate-900">{resume.student_name}</span>
                           <p className="text-sm text-slate-600">{resume.student_email}</p>
+                          {resume.teacher_name && (
+                            <p className="text-xs text-slate-500">Sent to: {resume.teacher_name}</p>
+                          )}
                         </div>
                       </div>
                       <div className="flex gap-2">
