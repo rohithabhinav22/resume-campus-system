@@ -224,6 +224,8 @@ export default function LoginPage() {
                     setShowOTP(false);
                     setGeneratedOTP('');
                     setOTP('');
+                    setEmail('');
+                    setPassword('');
                   }}
                   className="w-full text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                   data-testid="back-to-login-button"
