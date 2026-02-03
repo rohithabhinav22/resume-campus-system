@@ -56,16 +56,24 @@ export default function StudentDashboard() {
       toast.error('Please enter your resume');
       return;
     }
+    
+    if (!selectedTeacher) {
+      toast.error('Please select a teacher');
+      return;
+    }
 
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.post(
+      const response = await axios.post(
         `${API}/student/resume`,
-        { resume_text: resumeText },
+        { 
+          resume_text: resumeText,
+          teacher_id: selectedTeacher
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success('Resume submitted successfully with AES-256 encryption!');
+      toast.success(response.data.message);
       setResumeText('');
       setTimeout(() => loadFeedbacks(), 1000);
     } catch (error) {
