@@ -111,8 +111,12 @@ export default function RegisterPage() {
                   className="pl-10 h-11 rounded-md border-slate-200 bg-white focus:ring-2 focus:ring-slate-900 focus:border-transparent"
                   required
                   data-testid="register-password-input"
+                  minLength={8}
                 />
               </div>
+              <p className="text-xs text-slate-500 mt-1">
+                Must contain: uppercase, lowercase, number, special char (@_-!)
+              </p>
             </div>
 
             <div>
