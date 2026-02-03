@@ -155,15 +155,25 @@ export default function AdminDashboard() {
             </h1>
             <p className="text-slate-600 text-sm mt-1">System Overview & Management</p>
           </div>
-          <Button
-            onClick={handleLogout}
-            variant="ghost"
-            className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-            data-testid="logout-button"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => navigate('/admin/security')}
+              className="bg-purple-600 text-white hover:bg-purple-700"
+              data-testid="security-inspector-button"
+            >
+              <Shield className="w-4 h-4 mr-2" />
+              Security Inspector
+            </Button>
+            <Button
+              onClick={handleLogout}
+              variant="ghost"
+              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              data-testid="logout-button"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
       </header>
 
