@@ -21,6 +21,15 @@ export default function RegisterPage() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    
+    // Password validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@_\-!#$%^&*])[A-Za-z\d@_\-!#$%^&*]{8,}$/;
+    
+    if (!passwordRegex.test(formData.password)) {
+      toast.error('Password must contain at least 8 characters including uppercase, lowercase, number, and special character (@, _, -, !, etc.)');
+      return;
+    }
+    
     setLoading(true);
 
     try {
