@@ -313,6 +313,11 @@ async def submit_resume(data: SubmitResumeRequest, current_user: dict = Depends(
     if current_user['role'] != 'student':
         raise HTTPException(status_code=403, detail="Access denied. Students only")
     
+    # Verify teacher exists
+    teacher = await db.users.find_one({"id": data.teacher_id, "role": "teacher"}, {"_id": 0})
+    if not teacher:
+        raise HTTPException(status_code=404, detail="Teacher not found")
+    
     # Encrypt resume text
     encrypted_text, iv = encrypt_text(data.resume_text)
     
@@ -323,7 +328,7 @@ async def submit_resume(data: SubmitResumeRequest, current_user: dict = Depends(
     text_hash = hashlib.sha256(data.resume_text.encode('utf-8')).hexdigest()
     
     # Encode metadata (Base64 encoding)
-    metadata = f"Student:{current_user['name']}|Date:{datetime.now(timezone.utc).isoformat()}"
+    metadata = f"Student:{current_user['name']}|Teacher:{teacher['name']}|Date:{datetime.now(timezone.utc).isoformat()}"
     encoded_metadata = encode_base64(metadata)
     
     resume_doc = {
@@ -331,6 +336,9 @@ async def submit_resume(data: SubmitResumeRequest, current_user: dict = Depends(
         "student_id": current_user['id'],
         "student_name": current_user['name'],
         "student_email": current_user['email'],
+        "teacher_id": data.teacher_id,
+        "teacher_name": teacher['name'],
+        "teacher_email": teacher['email'],
         "encrypted_text": encrypted_text,
         "iv": iv,
         "encrypted_hash": text_hash,
@@ -342,8 +350,9 @@ async def submit_resume(data: SubmitResumeRequest, current_user: dict = Depends(
     await db.resumes.insert_one(resume_doc)
     
     return {
-        "message": "Resume submitted successfully",
+        "message": f"Resume submitted successfully to {teacher['name']}",
         "resume_id": resume_doc['id'],
+        "teacher_name": teacher['name'],
         "encrypted": True,
         "signed": True
     }
