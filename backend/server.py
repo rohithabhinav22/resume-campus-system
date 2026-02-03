@@ -474,6 +474,98 @@ async def get_admin_stats(current_user: dict = Depends(get_current_user)):
         "total_feedbacks": total_feedbacks
     }
 
+@api_router.get("/admin/security-audit")
+async def get_security_audit(current_user: dict = Depends(get_current_user)):
+    """Get comprehensive security audit data (admin only)"""
+    if current_user['role'] != 'admin':
+        raise HTTPException(status_code=403, detail="Access denied. Admins only")
+    
+    # Get encryption key (Base64 encoded)
+    encryption_key_display = ENCRYPTION_KEY if ENCRYPTION_KEY else base64.b64encode(encryption_key_bytes).decode()
+    
+    # Get all users with password hashes
+    users = await db.users.find({}, {"_id": 0}).to_list(1000)
+    password_hashes = [
+        {
+            "id": user['id'],
+            "name": user['name'],
+            "email": user['email'],
+            "role": user['role'],
+            "password": user['password']
+        }
+        for user in users
+    ]
+    
+    # Get encrypted resumes with decrypted comparison
+    resumes = await db.resumes.find({}, {"_id": 0}).to_list(100)
+    encrypted_resumes = []
+    
+    for resume in resumes:
+        try:
+            # Decrypt the resume
+            decrypted_text = decrypt_text(resume['encrypted_text'], resume['iv'])
+            
+            # Verify signature
+            signature_valid = verify_digital_signature(
+                decrypted_text,
+                resume['student_id'],
+                resume['digital_signature']
+            )
+            
+            # Decode metadata
+            decoded_metadata = decode_base64(resume['encoded_metadata'])
+            
+            encrypted_resumes.append({
+                "student_name": resume['student_name'],
+                "student_email": resume['student_email'],
+                "encrypted_text": resume['encrypted_text'],
+                "iv": resume['iv'],
+                "decrypted_text": decrypted_text,
+                "encrypted_hash": resume['encrypted_hash'],
+                "digital_signature": resume['digital_signature'],
+                "signature_verified": signature_valid,
+                "encoded_metadata": resume['encoded_metadata'],
+                "decoded_metadata": decoded_metadata,
+                "created_at": resume['created_at']
+            })
+        except Exception as e:
+            logging.error(f"Error processing resume: {e}")
+    
+    # Get feedback with signatures
+    feedbacks = await db.feedbacks.find({}, {"_id": 0}).to_list(100)
+    feedback_signatures = []
+    
+    for feedback in feedbacks:
+        # Get student name from resume
+        resume = await db.resumes.find_one({"id": feedback['resume_id']}, {"_id": 0})
+        student_name = resume['student_name'] if resume else "Unknown"
+        
+        # Verify signature
+        signature_valid = verify_digital_signature(
+            feedback['feedback_text'],
+            feedback['teacher_id'],
+            feedback['digital_signature']
+        )
+        
+        feedback_signatures.append({
+            "teacher_name": feedback['teacher_name'],
+            "student_name": student_name,
+            "feedback_text": feedback['feedback_text'],
+            "digital_signature": feedback['digital_signature'],
+            "signature_verified": signature_valid,
+            "created_at": feedback['created_at']
+        })
+    
+    return {
+        "encryption_key": encryption_key_display,
+        "total_users": len(users),
+        "encrypted_resumes_count": len(encrypted_resumes),
+        "total_signatures": len(encrypted_resumes) + len(feedback_signatures),
+        "password_hashes": password_hashes,
+        "encrypted_resumes": encrypted_resumes,
+        "feedback_signatures": feedback_signatures
+    }
+
 @api_router.post("/admin/user")
 async def create_user_by_admin(data: RegisterRequest, current_user: dict = Depends(get_current_user)):
     """Create new user as admin"""
