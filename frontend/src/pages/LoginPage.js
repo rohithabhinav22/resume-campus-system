@@ -184,7 +184,7 @@ export default function LoginPage() {
                 <h2 className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Playfair Display, serif' }}>
                   Verify OTP
                 </h2>
-                <p className="text-slate-600 mt-2">Enter the 6-digit code from the popup alert</p>
+                <p className="text-slate-600 mt-2">Check the notification at the top-right for your OTP code</p>
               </div>
 
               <form onSubmit={handleVerifyOTP} className="space-y-6">
