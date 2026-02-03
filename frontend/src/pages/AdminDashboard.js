@@ -64,12 +64,18 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.delete(`${API}/admin/user/${userId}`, {
+      await axios.delete(`${API}/admin/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      toast.success('User deleted successfully');
-      loadUsers();
-      loadStats();
+      
+      toast.success(`${userName} deleted successfully`);
+      
+      // Immediately update UI by filtering out deleted user
+      setUsers(prevUsers => prevUsers.filter(u => u.id !== userId));
+      
+      // Refresh stats and full user list
+      await loadStats();
+      await loadUsers();
     } catch (error) {
       console.error('Delete error:', error);
       toast.error(error.response?.data?.detail || 'Failed to delete user');
