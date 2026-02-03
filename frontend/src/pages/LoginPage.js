@@ -15,7 +15,6 @@ export default function LoginPage() {
   const [otp, setOTP] = useState('');
   const [generatedOTP, setGeneratedOTP] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showOTPPopup, setShowOTPPopup] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
