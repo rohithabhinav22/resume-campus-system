@@ -25,14 +25,16 @@ export default function LoginPage() {
     try {
       const response = await axios.post(`${API}/auth/login`, { email, password });
       
+      setLoading(false);
+      
       // Set the generated OTP
       setGeneratedOTP(response.data.otp);
       
-      // Show custom OTP popup
-      setShowOTPPopup(true);
+      // Show browser alert popup with OTP
+      window.alert(`🔐 Your OTP Code: ${response.data.otp}\n\nThis is a simulated OTP for testing purposes.\nPlease enter this code in the next screen.`);
       
       // Show toast
-      toast.success('OTP generated! Check the popup below.');
+      toast.success('Enter the OTP from the popup to continue');
       
       // Set showOTP to display verification form
       setShowOTP(true);
