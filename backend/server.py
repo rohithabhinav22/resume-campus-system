@@ -412,7 +412,7 @@ async def get_all_resumes(current_user: dict = Depends(get_current_user)):
 
 @api_router.post("/teacher/feedback")
 async def submit_feedback(data: SubmitFeedbackRequest, current_user: dict = Depends(get_current_user)):
-    """Submit feedback on resume (teacher only) - with digital signature"""
+    """Submit feedback on resume (teacher only) - with encryption and digital signature"""
     if current_user['role'] != 'teacher':
         raise HTTPException(status_code=403, detail="Access denied. Teachers only")
     
@@ -421,8 +421,14 @@ async def submit_feedback(data: SubmitFeedbackRequest, current_user: dict = Depe
     if not resume:
         raise HTTPException(status_code=404, detail="Resume not found")
     
-    # Create digital signature for feedback
+    # Encrypt feedback text
+    encrypted_text, iv = encrypt_text(data.feedback_text)
+    
+    # Create digital signature
     signature = create_digital_signature(data.feedback_text, current_user['id'])
+    
+    # Create hash for integrity check
+    text_hash = hashlib.sha256(data.feedback_text.encode('utf-8')).hexdigest()
     
     feedback_doc = {
         "id": str(uuid.uuid4()),
@@ -430,7 +436,9 @@ async def submit_feedback(data: SubmitFeedbackRequest, current_user: dict = Depe
         "teacher_id": current_user['id'],
         "teacher_name": current_user['name'],
         "teacher_email": current_user['email'],
-        "feedback_text": data.feedback_text,
+        "encrypted_text": encrypted_text,
+        "iv": iv,
+        "encrypted_hash": text_hash,
         "digital_signature": signature,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
@@ -440,6 +448,7 @@ async def submit_feedback(data: SubmitFeedbackRequest, current_user: dict = Depe
     return {
         "message": "Feedback submitted successfully",
         "feedback_id": feedback_doc['id'],
+        "encrypted": True,
         "signed": True
     }
 
