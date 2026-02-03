@@ -19,9 +19,8 @@ export default function SecurityInspector() {
       navigate('/login');
       return;
     }
-    setUser(userData);
     loadSecurityData();
-  }, []);
+  }, [navigate]);
 
   const loadSecurityData = async () => {
     setLoading(true);
@@ -37,29 +36,6 @@ export default function SecurityInspector() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const toggleSensitive = (key, subKey = null) => {
-    if (subKey) {
-      setShowSensitive(prev => ({
-        ...prev,
-        [key]: {
-          ...prev[key],
-          [subKey]: !prev[key]?.[subKey]
-        }
-      }));
-    } else {
-      setShowSensitive(prev => ({
-        ...prev,
-        [key]: !prev[key]
-      }));
-    }
-  };
-
-  const maskText = (text, show) => {
-    if (show || !text) return text;
-    if (text.length <= 20) return '•'.repeat(text.length);
-    return text.substring(0, 10) + '...' + text.substring(text.length - 10);
   };
 
   if (loading || !securityData) {
