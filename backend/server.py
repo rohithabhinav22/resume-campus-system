@@ -451,7 +451,7 @@ async def get_all_users(current_user: dict = Depends(get_current_user)):
     if current_user['role'] != 'admin':
         raise HTTPException(status_code=403, detail="Access denied. Admins only")
     
-    users = await db.users.find({}, {"_id": 0, "password": 0}).to_list(1000)
+    users = await db.users.find({}, {"_id": 0}).to_list(1000)
     return users
 
 @api_router.get("/admin/stats")
