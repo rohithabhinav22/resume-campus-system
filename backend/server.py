@@ -335,13 +335,13 @@ async def get_student_feedback(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Access denied. Students only")
     
     # Get all student's resumes
-    resumes = await db.resumes.find({"student_id": current_user['id']}, {"_id": 0}).to_list(1000)
+    resumes = await db.resumes.find({" student_id": current_user['id']}, {"_id": 0}).to_list(1000)
     resume_ids = [r['id'] for r in resumes]
     
     # Get all feedback for these resumes
     feedbacks = await db.feedbacks.find({"resume_id": {"$in": resume_ids}}, {"_id": 0}).to_list(1000)
     
-    # Decrypt resumes for display
+    # Decrypt resumes and feedback for display
     result = []
     for feedback in feedbacks:
         # Find corresponding resume
@@ -349,16 +349,18 @@ async def get_student_feedback(current_user: dict = Depends(get_current_user)):
         if resume:
             try:
                 decrypted_resume = decrypt_text(resume['encrypted_text'], resume['iv'])
+                decrypted_feedback = decrypt_text(feedback['encrypted_text'], feedback['iv'])
+                
                 result.append({
                     "id": feedback['id'],
                     "resume_preview": decrypted_resume[:100] + "...",
-                    "feedback_text": feedback['feedback_text'],
+                    "feedback_text": decrypted_feedback,
                     "teacher_name": feedback['teacher_name'],
                     "teacher_email": feedback['teacher_email'],
                     "digital_signature": feedback['digital_signature'],
                     "created_at": feedback['created_at'],
                     "signature_verified": verify_digital_signature(
-                        feedback['feedback_text'], 
+                        decrypted_feedback, 
                         feedback['teacher_id'], 
                         feedback['digital_signature']
                     )
