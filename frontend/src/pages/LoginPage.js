@@ -29,11 +29,22 @@ export default function LoginPage() {
       // Set the generated OTP
       setGeneratedOTP(response.data.otp);
       
-      // Show browser alert popup with OTP
-      window.alert(`🔐 Your OTP Code: ${response.data.otp}\n\nThis is a simulated OTP for testing purposes.\nPlease enter this code in the next screen.`);
-      
-      // Show toast
-      toast.success('Enter the OTP from the popup to continue');
+      // Show OTP as a prominent toast notification (website alert style)
+      toast.success(
+        `🔐 Your OTP Code: ${response.data.otp}`,
+        {
+          duration: 30000, // Show for 30 seconds
+          description: 'Enter this code in the verification form below',
+          style: {
+            background: '#fef3c7',
+            border: '2px solid #f59e0b',
+            color: '#92400e',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            padding: '20px'
+          }
+        }
+      );
       
       // Set showOTP to display verification form
       setShowOTP(true);
