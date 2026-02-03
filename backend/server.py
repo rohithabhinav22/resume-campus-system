@@ -542,7 +542,7 @@ async def get_security_audit(current_user: dict = Depends(get_current_user)):
         except Exception as e:
             logging.error(f"Error processing resume: {e}")
     
-    # Get feedback with signatures
+    # Get feedback with signatures and encryption
     feedbacks = await db.feedbacks.find({}, {"_id": 0}).to_list(100)
     feedback_signatures = []
     
@@ -551,26 +551,36 @@ async def get_security_audit(current_user: dict = Depends(get_current_user)):
         resume = await db.resumes.find_one({"id": feedback['resume_id']}, {"_id": 0})
         student_name = resume['student_name'] if resume else "Unknown"
         
-        # Verify signature
-        signature_valid = verify_digital_signature(
-            feedback['feedback_text'],
-            feedback['teacher_id'],
-            feedback['digital_signature']
-        )
-        
-        feedback_signatures.append({
-            "teacher_name": feedback['teacher_name'],
-            "student_name": student_name,
-            "feedback_text": feedback['feedback_text'],
-            "digital_signature": feedback['digital_signature'],
-            "signature_verified": signature_valid,
-            "created_at": feedback['created_at']
-        })
+        try:
+            # Decrypt feedback
+            decrypted_feedback = decrypt_text(feedback['encrypted_text'], feedback['iv'])
+            
+            # Verify signature
+            signature_valid = verify_digital_signature(
+                decrypted_feedback,
+                feedback['teacher_id'],
+                feedback['digital_signature']
+            )
+            
+            feedback_signatures.append({
+                "teacher_name": feedback['teacher_name'],
+                "student_name": student_name,
+                "encrypted_text": feedback['encrypted_text'],
+                "iv": feedback['iv'],
+                "decrypted_text": decrypted_feedback,
+                "encrypted_hash": feedback['encrypted_hash'],
+                "digital_signature": feedback['digital_signature'],
+                "signature_verified": signature_valid,
+                "created_at": feedback['created_at']
+            })
+        except Exception as e:
+            logging.error(f"Error processing feedback: {e}")
     
     return {
         "encryption_key": encryption_key_display,
         "total_users": len(users),
         "encrypted_resumes_count": len(encrypted_resumes),
+        "encrypted_feedbacks_count": len(feedback_signatures),
         "total_signatures": len(encrypted_resumes) + len(feedback_signatures),
         "password_hashes": password_hashes,
         "encrypted_resumes": encrypted_resumes,
